@@ -1,12 +1,8 @@
-# Neubox
+# MailMind (Gmail Agent OS)
 
-Practice mock interviews with AI-generated questions, multimodal session capture, and structured per-question feedback.
+Automate your inbox with AI-powered email sorting, intelligent routing rules, and an agentic classification pipeline.
 
-Neubox is a full-stack interview preparation platform built with Next.js, Supabase, and a Python FastAPI processing backend. It helps users run realistic interview sessions, generate job-description-aware or company-specific questions, record answers with camera and microphone, and review detailed feedback for each response. The current application supports transcript-driven analysis, session scoring, temporary recording storage, and a product architecture that can expand into full audio and video ML evaluation.
-
-## Live Demo
-
-[View Live Application](https://interview-feedback-system.vercel.app/)
+MailMind is a personal email intelligence system built with a React frontend and a Python FastAPI backend powered by LangChain and LangGraph. It helps users automatically classify incoming emails into custom-defined categories, selectively notify based on priority rules, and surface actionable statistics. The system reads your unread Gmail messages, evaluates them against your custom prompts using an LLM agent, and applies labels directly in your inbox.
 
 ## Table of Contents
 
@@ -18,175 +14,88 @@ Neubox is a full-stack interview preparation platform built with Next.js, Supaba
 - [Environment Variables](#environment-variables)
 - [Running the Application](#running-the-application)
 - [API Reference](#api-reference)
-- [Deployment](#deployment)
 
 ## Features
 
-**AI-Powered Question Generation**  
-Generate mock interview questions from a job description or company name using OpenAI-backed Next.js API routes. The system supports role-aware and domain-aware question sets for realistic interview practice.
+**Agentic Email Classification**  
+Automatically classify every incoming email into one of your custom-defined categories using a LangGraph-based LLM agent.
 
-**Live Interview Session Flow**  
-Users can run structured interview sessions with preparation time, answer timers, question progression, live transcript capture, waveform feedback, and automatic session advancement when time expires.
+**Custom Routing Rules & Prompts**  
+Define categories with natural language descriptions (e.g., "Receipts, bills, and financial docs") to ground the LLM prompt and ensure accurate sorting based on your mental model.
 
-**Transcript-Driven Answer Analysis**  
-Each response is analyzed using the transcript, question, role, difficulty, and duration. The app produces content, delivery, and presence-style scores, plus strengths and improvement suggestions for every answered question.
+**Gmail API Integration**  
+Securely connects to your Gmail via OAuth2. It fetches unread emails, analyzes them, and automatically applies the correct labels back to your Gmail account.
 
-**Detailed Results Review**  
-The results page shows actual questions asked during the session, expandable per-question transcript panels, answer metrics, estimated pace, question-level scoring, and coaching-style feedback for each response.
+**Smart Notification Engine**  
+Set per-category notification rules so you only get pinged for important threads, while newsletters and receipts are silently filed away.
 
-**Temporary Recording Storage**  
-Interview recordings can be uploaded to a private Supabase Storage bucket and accessed through signed URLs for replay and download after evaluation. The project is designed around short-lived recordings rather than permanent raw media retention.
-
-**Supabase-Backed Product Core**  
-Supabase handles authentication, database storage, row-level-secured user data, session persistence, response metadata, and storage integration for recordings.
-
-**Extensible Multimodal ML Architecture**  
-A dedicated Python FastAPI backend is included as the future home for heavy audio and video ML tasks such as gesture analysis, voice feature extraction, posture scoring, and deeper multimodal evaluation workflows.
+**Minimalist Dashboard**  
+A clean, utilitarian React interface to manage your routing rules, trigger manual syncs, and monitor the intelligence pipeline without unnecessary clutter.
 
 ## Tech Stack
 
 | Layer | Technology |
 |---|---|
-| Frontend | Next.js 14, React 18, TypeScript, Tailwind CSS |
-| UI Components | Custom UI primitives, Lucide React, Framer Motion |
-| Backend API | Next.js App Router API routes |
-| ML Processing Backend | Python, FastAPI, Uvicorn |
-| Database | Supabase PostgreSQL |
-| Authentication | Supabase Auth |
-| Storage | Supabase Storage |
-| LLM | OpenAI GPT-4o-mini |
-| Speech and Analysis | OpenAI-powered transcript analysis with app-side orchestration |
-| Future ML Pipeline | Python audio and video processing stack via FastAPI |
+| Frontend | React 18, Vite, TypeScript, Tailwind CSS |
+| UI Components | Lucide React, Glassmorphism UI |
+| Backend API | Python, FastAPI, Uvicorn |
+| AI / Agents | LangChain, LangGraph, OpenAI |
+| Database | SQLite, SQLAlchemy |
+| Integrations | Gmail API, Google OAuth2 |
 
 ## Project Structure
 
 ```bash
-InterviewFeedbackSystem/
-├── app/
-│   ├── api/
-│   │   ├── account/
-│   │   │   └── delete/route.ts               # Account deletion endpoint
-│   │   ├── ai/
-│   │   │   ├── aggregate-session/route.ts    # Session-level score aggregation
-│   │   │   ├── analyze-response/route.ts     # Transcript-based response scoring
-│   │   │   ├── chat/route.ts                 # AI chat endpoint
-│   │   │   ├── company-questions/route.ts    # Company-specific question generation
-│   │   │   └── jd-questions/route.ts         # JD-based question generation
-│   │   ├── cron/
-│   │   │   └── cleanup-recordings/route.ts   # Expired recording cleanup endpoint
-│   │   ├── profile/
-│   │   │   └── upsert/route.ts               # Profile save/update endpoint
-│   │   └── recordings/
-│   │       └── signed-url/route.ts           # Signed playback URL for recordings
-│   ├── analytics/
-│   │   └── page.tsx                          # Analytics dashboard
-│   ├── dashboard/
-│   │   └── page.tsx                          # Main user dashboard
-│   ├── login/
-│   │   └── page.tsx                          # Login screen
-│   ├── onboarding/
-│   │   └── page.tsx                          # Onboarding flow
-│   ├── practice/
-│   │   ├── page.tsx                          # Practice mode selection
-│   │   ├── setup/page.tsx                    # Interview setup and configuration
-│   │   └── session/page.tsx                  # Live interview experience
-│   ├── register/
-│   │   └── page.tsx                          # Registration page
-│   ├── results/
-│   │   └── page.tsx                          # Detailed interview review
-│   ├── settings/
-│   │   └── page.tsx                          # User settings
-│   ├── globals.css                           # Global styles
-│   ├── layout.tsx                            # App layout shell
-│   └── page.tsx                              # Landing page
+Gmail-Agent-OS/
 ├── backend/
-│   ├── api/
-│   │   └── main.py                           # FastAPI processing backend scaffold
-│   └── requirements.txt                      # Python backend dependencies
-├── components/
-│   ├── layout/
-│   │   ├── sidebar.tsx                       # Sidebar navigation
-│   │   └── topbar.tsx                        # Top navigation
-│   └── ui/
-│       ├── button.tsx                        # Button component
-│       ├── card.tsx                          # Card component
-│       ├── input.tsx                         # Input component
-│       ├── multi-select.tsx                  # Multi-select component
-│       └── toast.tsx                         # Toast system
-├── lib/
-│   ├── job-roles.ts                          # Supported job roles
-│   ├── practice-results.ts                   # Session result storage helpers
-│   ├── practice-store.ts                     # Practice session state helpers
-│   ├── profile.ts                            # Profile and settings helpers
-│   ├── supabase-admin.ts                     # Admin Supabase client
-│   └── supabase.ts                           # Browser Supabase client
-├── supabase/
-│   ├── migrations/
-│   │   ├── 20260411_feature_persistence.sql  # Feature persistence migration
-│   │   └── 20260413_supabase_storage.sql     # Recording storage migration
-│   ├── schema.sql                            # Main schema definition
-│   └── seed-questions.sql                    # Seed question bank data
-├── .env.example
-├── .gitignore
-├── next.config.mjs
-├── package-lock.json
-├── package.json
-├── postcss.config.js
-├── tailwind.config.ts
-└── tsconfig.json
+│   ├── agent.py               # LangGraph state machine & classification agent
+│   ├── database.py            # SQLite database setup & sessions
+│   ├── email_service.py       # Gmail API integration (OAuth flow, fetch, label)
+│   ├── main.py                # FastAPI entry point & API endpoints
+│   ├── models.py              # SQLAlchemy database models
+│   ├── schemas.py             # Pydantic schemas for data validation
+│   └── requirements.txt       # Python dependencies
+├── frontend/
+│   ├── src/
+│   │   ├── App.tsx            # Main dashboard & routing rules UI
+│   │   ├── index.css          # Tailwind & custom CSS styles
+│   │   └── main.tsx           # React entry point
+│   ├── package.json           # Node dependencies
+│   └── vite.config.ts         # Vite bundler configuration
+├── prd.md                     # Product Requirements Document
+└── README.md                  # Project documentation
 ```
 
 ## System Architecture
 
 ```text
-User selects interview mode
+User defines routing rules
         |
         v
 ┌─────────────────────┐
-│ Next.js Frontend    │
-│ Practice UI         │
-│ Camera + Mic        │
+│ React Frontend      │
+│ Rule Management UI  │
 └─────────┬───────────┘
           |
           v
-┌─────────────────────┐
-│ Next.js API Routes  │
-│ Question generation │
-│ Response analysis   │
-│ Aggregation         │
-└─────────┬───────────┘
-          |
-          v
-┌─────────────────────┐
-│ Supabase            │
-│ Auth                │
-│ PostgreSQL          │
-│ Storage             │
-└───────┬───────┬─────┘
-        |       |
-        |       v
-        |  ┌─────────────────────┐
-        |  │ Signed Recording    │
-        |  │ Playback URLs       │
-        |  └─────────────────────┘
-        |
-        v
-┌─────────────────────┐
-│ Results Page        │
-│ Transcript review   │
-│ Question scores     │
-│ Recording replay    │
-└─────────────────────┘
-
-Future ML path
-        |
-        v
 ┌─────────────────────┐
 │ FastAPI Backend     │
-│ Audio ML            │
-│ Video ML            │
-│ Gesture analysis    │
-│ Voice analysis      │
+│ Database (SQLite)   │
+└─────────┬───────────┘
+          | Trigger Sync
+          v
+┌───────────────────────────┐
+│ LangGraph Agent Pipeline  │
+│ 1. Fetch unread emails    │
+│ 2. Preprocess text        │
+│ 3. Classify via LLM       │
+│ 4. Apply Gmail label      │
+└─────────┬─────────────────┘
+          |
+          v
+┌─────────────────────┐
+│ Gmail API (OAuth2)  │
+│ Token management    │
 └─────────────────────┘
 ```
 
@@ -198,109 +107,76 @@ Future ML path
 |---|---|
 | Node.js | Version 18 or higher |
 | npm | Version 9 or higher |
-| Python | Version 3.10 or higher if using the FastAPI backend |
-| Supabase | A project with database and storage enabled |
-| OpenAI API Key | Required for AI question generation and transcript analysis |
+| Python | Version 3.10 or higher |
+| Google Cloud | A project with the Gmail API enabled and OAuth credentials |
+| OpenAI API Key | Required for the classification agent |
 
 ### Setup
 
 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/InterviewFeedbackSystem.git
-cd InterviewFeedbackSystem
+git clone https://github.com/Shanmukh89/Gmail-Agent-OS.git
+cd Gmail-Agent-OS
 ```
 
-2. Install frontend and Next.js dependencies
-
-```bash
-npm install
-```
-
-3. Prepare the Python backend if you want the FastAPI processing service available
+2. Install backend dependencies
 
 ```bash
 cd backend
 python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
-cd ..
 ```
 
-4. Configure the database
+3. Install frontend dependencies
 
-Run `supabase/schema.sql` in the Supabase SQL editor, then run the SQL files in `supabase/migrations/` to enable the latest response, storage, and recording-retention structures.
-
-5. Create environment files
-
-Create `.env.local` in the project root using the variables listed below. Keep `.env.example` as the template committed to the repository.
+```bash
+cd ../frontend
+npm install
+```
 
 ## Environment Variables
 
-### Root (`.env.local`)
+### Backend (`backend/.env`)
+
+Create a `.env` file in the `backend/` directory:
 
 | Variable | Required | Description |
 |---|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Required | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Required | Supabase anonymous public key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Required | Supabase service role key for admin API routes |
-| `OPENAI_API_KEY` | Required | OpenAI API key for question generation and transcript analysis |
-| `OPENAI_MODEL` | Optional | OpenAI model name. Defaults to `gpt-4o-mini` |
-| `NEXT_PUBLIC_APP_URL` | Optional | App base URL. Defaults to `http://localhost:3000` |
-| `CRON_SECRET` | Optional | Secret used by the recording cleanup cron endpoint |
+| `OPENAI_API_KEY` | Required | OpenAI API key for email classification |
 
-### Optional Python Backend
+### Google Credentials (`backend/credentials.json`)
 
-If you run the FastAPI backend separately, you can also provide Python-specific environment variables later for ML models, queues, or external processing services. The current scaffold only requires standard Python runtime setup.
+You must download your OAuth 2.0 Client IDs from the Google Cloud Console and save the file as `backend/credentials.json`. When you run the sync for the first time, the app will prompt you to log in and generate a `token.json` file.
 
 ## Running the Application
 
-Start the Next.js development server:
-
-```bash
-npm run dev
-```
-
-The app will be available at `http://localhost:3000`.
-
-Start the optional FastAPI backend in a separate terminal if you are extending the ML pipeline:
+1. Start the FastAPI backend:
 
 ```bash
 cd backend
 venv\Scripts\activate
-python -m uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
+uvicorn main:app --reload
 ```
 
-### Production Build
+The API will be available at `http://localhost:8000`.
+
+2. Start the React frontend in a separate terminal:
 
 ```bash
-npm run build
-npm start
+cd frontend
+npm run dev
 ```
+
+The app will be available at `http://localhost:5173`.
 
 ## API Reference
 
-| Method | Endpoint | Description | Request Body |
-|---|---|---|---|
-| `POST` | `/api/ai/jd-questions` | Generate interview questions from a job description | `{ "jdText": "string", "domains": [], "targetJobTitle": "string", "totalQuestions": 5 }` |
-| `POST` | `/api/ai/company-questions` | Generate company-specific interview questions | `{ "companyName": "string", "domains": [], "targetJobTitle": "string", "totalQuestions": 5 }` |
-| `POST` | `/api/ai/analyze-response` | Analyze a transcript and enrich a response with scores and feedback | `{ "responseId": "uuid", "transcript": "string", "question": "string", "role": "string", "difficulty": "string", "duration": 90 }` |
-| `POST` | `/api/ai/aggregate-session` | Aggregate completed question responses into session-level scores | `{ "sessionId": "uuid" }` |
-| `POST` | `/api/recordings/signed-url` | Return a signed playback URL for a stored recording | `{ "videoPath": "string" }` |
-| `POST` | `/api/cron/cleanup-recordings` | Delete expired recordings and mark them as removed | None |
-
-## Deployment
-
-The application can be deployed on a standard Next.js hosting platform with Supabase as the managed backend.
-
-**Frontend and App API**  
-Deploy the Next.js app to Vercel, Netlify, Render, or any Node.js-compatible platform. Ensure all required environment variables are configured in the hosting dashboard.
-
-**Database and Storage**  
-Use Supabase for PostgreSQL, authentication, and private recording storage. Run the schema and migration SQL before using the deployed app.
-
-**Recording Retention**  
-If you use temporary interview recordings, configure a scheduled trigger to call the cleanup endpoint and remove expired recordings automatically.
-
-**Python ML Backend**  
-If you expand into true audio and video ML, deploy the FastAPI backend as a separate Python service and let the Next.js app or Supabase-triggered jobs hand off heavy processing work to it.
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/categories/` | Retrieve all active routing rules |
+| `POST` | `/categories/` | Create a new routing rule |
+| `PUT` | `/categories/{id}` | Update an existing rule (e.g., toggle notifications) |
+| `DELETE` | `/categories/{id}` | Delete a routing rule |
+| `POST` | `/sync/` | Trigger the LangGraph agent to fetch and categorize unread emails |
